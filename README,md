@@ -1,0 +1,4 @@
+# README.md
+# Author: Courtney James
+
+This is a mock chatbot designed to help the user find avaiable appointment times and days for Dr. Smiths office. The chatbot offers a greeting and asks the user what day they would like thier appointment on. The chatbot then responds back with available yimes for that day. Since this is a simple mock, the user is then directed to a human agent when they are ready to book thier appointment, based on a series of handoff words given to the chatbot. If this model used real customer/appointment data, the simple replies and constraints could prevent meaningful interactions and efficiant appointment scheduling.
