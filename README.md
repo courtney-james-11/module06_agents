@@ -2,3 +2,5 @@
 # Author: Courtney James
 
 This is a mock chatbot designed to help the user find avaiable appointment times and days for Dr. Smiths office. The chatbot offers a greeting and asks the user what day they would like thier appointment on. The chatbot then responds back with available yimes for that day. Since this is a simple mock, the user is then directed to a human agent when they are ready to book thier appointment, based on a series of handoff words given to the chatbot. If this model used real customer/appointment data, the simple replies and constraints could prevent meaningful interactions and efficiant appointment scheduling.
+
+The model answered the question where is the office located, based off the intructions and listed the proper address. I asked the model what the weather is today, and it reponded saying it does not have acess to weather information. This is a good reply because it shows the model only follows its intructions and did not make up an answer. I decided to keep the appointment times in the code and the handoff words because those are important business rules that should not be handed to the AI model.

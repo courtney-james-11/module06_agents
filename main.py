@@ -31,13 +31,7 @@ STOCK = {
 order_tool = OrderLookup(ORDERS)
 stock_tool = StockLookup(STOCK)
 model = OllamaModel(MODEL_NAME)
-bot = SupportChatbot(
-    "Sunny",
-    INSTRUCTIONS,
-    order_tool,
-    stock_tool,
-    model
-)
+bot = SupportChatbot("Sunny", INSTRUCTIONS, order_tool, stock_tool, model)
 
 print("Type a message, or type quit to stop.")
 user_message = input("You: ")

@@ -1,5 +1,13 @@
 from doctor_appointment_assistant import DoctorAppointmentChatbot
 from doctor_appointment_tool import AppointmentAvailability
+from mock_model import MockModel
+
+
+class SilentModel:
+    """This model never has an answer. It is used when Ollama is off."""
+
+    def reply(self, instructions, history):
+        return None
 
 
 def make_bot():
@@ -14,9 +22,10 @@ def make_bot():
         }
     )
     return DoctorAppointmentChatbot(
-        "Dr. Smith's Office Assistant",
+        "Stacy",
         "You are an appointment assistant.",
         appointment_availability,
+        MockModel(),
     )
 
 
@@ -41,3 +50,16 @@ def test_respond_records_both_messages():
 def test_handoff_request_goes_to_human():
     bot = make_bot()
     assert "human" in bot.respond("I need to cancel my appointment.")
+
+
+def test_unknown_request_gets_a_safe_reply():
+    availability = AppointmentAvailability({"monday": ["9:00 AM"]})
+    bot = DoctorAppointmentChatbot(
+        "Stacy", "You are an appointment assistant.", availability, SilentModel()
+    )
+    assert "not sure" in bot.respond("Can you tell me about your services?")
+
+
+def test_other_messages_go_to_the_model():
+    bot = make_bot()
+    assert bot.respond("hello") == "Hello! How can I help you today?"

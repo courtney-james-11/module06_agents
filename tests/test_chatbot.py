@@ -1,8 +1,8 @@
 from chatbot import SupportChatbot
+from echo_model import EchoModel
+from mock_model import MockModel
 from order_tool import OrderLookup
 from stock_tool import StockLookup
-from mock_model import MockModel
-from echo_model import EchoModel
 
 
 class SilentModel:
@@ -85,6 +85,7 @@ def test_stock_question_uses_the_stock_tool():
     bot = make_bot()
     assert "12" in bot.respond("Is the rain jacket in stock?")
 
+
 def test_other_messages_go_to_the_model():
     bot = make_bot()
     assert bot.respond("hello") == "Hello! How can I help you today?"
@@ -103,6 +104,7 @@ def test_order_rule_does_not_need_the_model():
 def test_handoff_rule_does_not_need_the_model():
     bot = make_bot_with_silent_model()
     assert "human" in bot.respond("Please change my shipping address")
+
 
 def test_chatbot_works_with_any_model_that_has_a_reply_method():
     order_tool = OrderLookup({"A100": "shipped"})

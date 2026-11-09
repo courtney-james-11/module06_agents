@@ -40,7 +40,7 @@ class SupportChatbot:
         if reply is None:
             return "Sorry, I can't answer that right now. Please try again in a moment."
         return reply
-    
+
     def needs_human(self, text):
         """Return True if the message is about something a person must handle"""
         for word in HANDOFF_WORDS:
