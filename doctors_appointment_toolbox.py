@@ -13,7 +13,7 @@ class AppointmentToolbox:
     def tool_list(self):
         """Return the exact tool the model requets."""
         return [
-            self.appointment_schedule.find_available_days,
+            self.appointment_schedule.check_availability,
             self.appointment_queue.request_appointment,
         ]
 

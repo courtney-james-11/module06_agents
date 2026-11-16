@@ -7,7 +7,7 @@ from doctors_appointment_queue import DoctorAppointmentQueue
 from doctors_appointment_toolbox import AppointmentToolbox
 from ollama_model import OllamaModel
 
-OPEN_APPOINTMENTS = {
+AVAILABILITY = {
     "monday": ["9:00 AM", "10:30 AM", "1:00 PM"],
     "tuesday": ["11:00 AM", "2:30 PM"],
     "wednesday": ["9:30 AM", "12:00 PM", "3:00 PM"],
@@ -21,9 +21,9 @@ Dr. Smith's office is accepting new patients. The office is located at 4523 Main
 Please bring your insurance card and your photo ID to your appointment. 
 Only state facts that appear in these instructions or in tool results. If you do not know, say you do not know and offer to pass the customer to a human agent."""
 
-appointment_availability = AppointmentAvailability(OPEN_APPOINTMENTS)
-appointment_queue = DoctorAppointmentQueue(appointment_availability)
-tools = AppointmentToolbox(appointment_availability, appointment_queue)
+appointment_schedule = AppointmentAvailability(AVAILABILITY)
+appointment_queue = DoctorAppointmentQueue(appointment_schedule)
+tools = AppointmentToolbox(appointment_schedule, appointment_queue)
 model = OllamaModel("granite4.1:3b")
 chatbot = DoctorAppointmentChatbot("Stacy", INSTRUCTIONS, tools, model)
 
@@ -47,4 +47,4 @@ for request in appointment_queue.waiting():
     else:
         print(appointment_queue.reject(number))
 
-print(f"Appointments booked: {len(appointment_availability.appointments)}")
+print(f"Appointments booked: {len(appointment_schedule.appointments)}")
