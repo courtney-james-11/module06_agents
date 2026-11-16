@@ -1,17 +1,12 @@
 from doctor_appointment_assistant import DoctorAppointmentChatbot
 from doctor_appointment_tool import AppointmentAvailability
-from mock_model import MockModel
+from doctors_appointment_queue import DoctorAppointmentQueue
+from doctors_appointment_toolbox import AppointmentToolbox
+from fake_model import FakeModel
 
 
-class SilentModel:
-    """This model never has an answer. It is used when Ollama is off."""
-
-    def reply(self, instructions, history):
-        return None
-
-
-def make_bot():
-    """Build a fresh chatbot with its own tool for each test."""
+def make_helper(model):
+    """Build a fresh helper with its own tools and the model it is given."""
     appointment_availability = AppointmentAvailability(
         {
             "monday": ["9:00 AM", "10:30 AM", "1:00 PM"],
@@ -21,45 +16,38 @@ def make_bot():
             "friday": ["9:00 AM", "11:30 AM", "2:00 PM"],
         }
     )
+    tools = AppointmentToolbox(
+        appointment_availability, DoctorAppointmentQueue(appointment_availability)
+    )
     return DoctorAppointmentChatbot(
         "Stacy",
         "You are an appointment assistant.",
-        appointment_availability,
-        MockModel(),
+        tools,
+        model,
     )
 
 
-def test_tool_finds_known_day():
-    tool = AppointmentAvailability({"monday": ["9:00 AM"]})
-    assert tool.find_available_days("I want an appointment on Monday.") == "monday"
+def booking(day, time, client):
+    """Build the decision a model returns when it wants to request a booking."""
+    arguments = {"day": day, "time": time, "client": client}
+    return {"tool": "request_appointment", "arguments": arguments}
 
 
-def test_tool_returns_none_for_unknown_day():
-    tool = AppointmentAvailability({"monday": ["9:00 AM"]})
-    assert tool.find_available_days("I want an appointment on Sunday.") is None
-
-
-def test_respond_records_both_messages():
-    bot = make_bot()
-    bot.respond("hello")
-    assert len(bot.history) == 2
-    assert bot.history[0]["role"] == "user"
-    assert bot.history[1]["role"] == "assistant"
-
-
-def test_handoff_request_goes_to_human():
-    bot = make_bot()
-    assert "human" in bot.respond("I need to cancel my appointment.")
-
-
-def test_unknown_request_gets_a_safe_reply():
-    availability = AppointmentAvailability({"monday": ["9:00 AM"]})
-    bot = DoctorAppointmentChatbot(
-        "Stacy", "You are an appointment assistant.", availability, SilentModel()
+def test_model_can_ask_for_open_times():
+    model = FakeModel(
+        [
+            {"tool": "find_available_days", "arguments": {"day": "Monday"}},
+            {"text": "Monday has 9:00 am and 2:30 pm."},
+        ]
     )
-    assert "not sure" in bot.respond("Can you tell me about your services?")
+    helper = make_helper(model)
+    helper.respond("When can I come in on Monday?")
+    assert helper.history[1]["content"] == "Open times on monday: 9:00 am and 2:30 pm."
 
 
-def test_other_messages_go_to_the_model():
-    bot = make_bot()
-    assert bot.respond("hello") == "Hello! How can I help you today?"
+def test_booking_waits_for_staff():
+    model = FakeModel([booking("monday", "9:00 am", "Dana Cruz"), {"text": "Sent."}])
+    helper = make_helper(model)
+    helper.respond("Please book Monday at 9:00 am for Dana Cruz")
+    assert len(helper.tools.appointment_queue.waiting()) == 1
+    assert helper.tools.appointment_schedule.appointments == []
